@@ -1,0 +1,75 @@
+using UnityEngine;
+
+public class GridMovement : MonoBehaviour
+{
+    public float tileSize = 1.0f;
+    // Size of the grid
+
+    public float moveSpeed = 10f;
+    // How fast we glide between tiles
+
+    private Vector3 targetPosition;
+    private bool isMoving = false;
+
+    void Start()
+    {
+        // Snap start position to the grid so everything lines up
+        targetPosition = SnapToGrid(transform.position);
+        transform.position = targetPosition;
+    }
+
+    void Update()
+    {
+        if (isMoving)
+        {
+            // Smoothly glide to the next tile
+            if (Vector3.Distance(transform.position, targetPosition) < 0.001f)
+            {
+                transform.position = targetPosition;
+                isMoving = false;
+            }
+            else
+            {
+                transform.position = Vector3.MoveTowards(
+                    transform.position,
+                    targetPosition,
+                    moveSpeed * Time.deltaTime
+                );
+            }
+        }
+        else
+        {
+            HandleInput();
+        }
+    }
+
+    void HandleInput()
+    {
+        Vector3 direction = Vector3.zero;
+
+        if (Input.GetKeyDown(KeyCode.W))
+            direction = Vector3.up;
+        else if (Input.GetKeyDown(KeyCode.S))
+            direction = Vector3.down;
+        else if (Input.GetKeyDown(KeyCode.A))
+            direction = Vector3.left;
+        else if (Input.GetKeyDown(KeyCode.D))
+            direction = Vector3.right;
+
+        if (direction != Vector3.zero)
+        {
+            targetPosition = transform.position + direction * tileSize;
+            isMoving = true;
+        }
+    }
+
+    Vector3 SnapToGrid(Vector3 pos)
+    {
+        return new Vector3(
+            Mathf.Round(pos.x / tileSize) * tileSize,
+            Mathf.Round(pos.y / tileSize) * tileSize,
+            pos.z
+        );
+    }
+}
+```
